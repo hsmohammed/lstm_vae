@@ -1,4 +1,5 @@
 
+
 @use_named_args(dimensions=dimensions)
 def fitness(intermediate_dim, latent_dim, learning_rate, momentum):
     """

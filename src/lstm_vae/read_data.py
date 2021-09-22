@@ -247,5 +247,9 @@ def data_split(Traj_arr1, random_state = 333, test_size = 0.33):
         
     for i in X_test_index:
         X_test.append(Traj_arr1[i])
+
+
         
     return X_train, X_test
+
+
