@@ -1,4 +1,3 @@
-
 from lstm_vae.read_data import read_data, arr2df, TrajVar, TrajVar_no_smooth, Traj_df_var_filter, Traj_arr_filtered, data_split
 from lstm_vae.network import VAE_def
 
@@ -42,7 +41,7 @@ def main():
     #               learning_rate,
     #               momentum]
 
-    default_parameters = [32, 2, 0.01, 0.9]
+    # default_parameters = [32, 2, 0.01, 0.9]
 
 
     model = VAE_def(intermediate_dim = 5, latent_dim = 64, learning_rate = 0.0001, momentum = 0)

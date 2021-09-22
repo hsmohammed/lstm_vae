@@ -46,11 +46,21 @@ def VAE_def(intermediate_dim = 32, latent_dim = 2, learning_rate = 0.01, momentu
     decoder_h = LSTM(intermediate_dim, return_sequences=True)
     decoder_mean = LSTM(input_dim, return_sequences=True)
     
-    def repeat_vector(args):
-        layer_to_repeat = args[0]
-        sequence_layer = args[1]
-        return RepeatVector(K.shape(sequence_layer)[1])(layer_to_repeat)
-    h_decoded = Lambda(repeat_vector)([z, x])
+    
+    
+    def repeat_encoding(input_tensors):
+        sequential_input = input_tensors[1]
+        to_be_repeated = K.expand_dims(input_tensors[0],axis=1)
+    
+        # set the one matrix to shape [ batch_size , sequence_length_based on input, 1]
+        one_matrix = K.ones_like(sequential_input[:,:,:1])
+        
+        # do a mat mul
+        return K.batch_dot(one_matrix,to_be_repeated)
+
+    # then just call it with a list of tensors 
+    h_decoded = Lambda(repeat_encoding,name="repeat_vector_dynamic")([z,x])
+
 
     
     
@@ -73,7 +83,7 @@ def VAE_def(intermediate_dim = 32, latent_dim = 2, learning_rate = 0.01, momentu
     
 
     
-    keras.losses.custom_loss = vae_loss
+    tf.keras.losses.custom_loss = vae_loss
     opt = Adam(lr=learning_rate,clipnorm=1)
     vae.compile(optimizer=opt, loss=vae_loss)
     
@@ -117,13 +127,25 @@ def ENCODER_def(intermediate_dim = 32, latent_dim = 2, learning_rate = 0.01, mom
     decoder_h = LSTM(intermediate_dim, return_sequences=True)
     decoder_mean = LSTM(input_dim, return_sequences=True)
     
-    def repeat_vector(args):
-        layer_to_repeat = args[0]
-        sequence_layer = args[1]
-        return RepeatVector(K.shape(sequence_layer)[1])(layer_to_repeat)
-    h_decoded = Lambda(repeat_vector)([z, x])
+    # def repeat_vector(args):
+    #     layer_to_repeat = args[0]
+    #     sequence_layer = args[1]
+    #     return RepeatVector(K.shape(sequence_layer)[0])(layer_to_repeat)
+    # h_decoded = Lambda(repeat_vector)([z, x])
 
+    def repeat_vector(args):
+        sequence_layer = args[1]
+        layer_to_repeat = K.expand_dims(args[0],axis=1)
     
+        # set the one matrix to shape [ batch_size , sequence_length_based on input, 1]
+        one_matrix = K.ones_like(sequence_layer[:,:,:1])
+        
+        # do a mat mul
+        return K.batch_dot(one_matrix,layer_to_repeat)
+    
+    # then just call it with a list of tensors 
+    h_decoded = Lambda(repeat_vector,name="repeat_vector_dynamic")([z,x])
+
     
     h_decoded = decoder_h(h_decoded)
     
