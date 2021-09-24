@@ -1,28 +1,16 @@
 from lstm_vae.read_data import read_data, arr2df, TrajVar, TrajVar_no_smooth, Traj_df_var_filter, Traj_arr_filtered, data_split
 from lstm_vae.network import VAE_def
+import numpy as np
 
 def main():
-    Traj_arr = read_data('data/Burrard_unconstrained.csv')
-    Traj_df = arr2df(Traj_arr)
-    Traj_df_var = TrajVar(Traj_df, Traj_arr)
-    Traj_df_var_no_smooth = TrajVar_no_smooth(Traj_df, Traj_arr)
-    Traj_df_var_filtered = Traj_df_var_filter(Traj_df_var)
-    Traj_arr_filtered1 = Traj_arr_filtered(Traj_df_var_filtered)
-    X_train, X_test = data_split(Traj_arr_filtered1, random_state = 333, test_size = 0.2)
-    X_train1, X_validate = data_split(X_train, random_state = 333, test_size = 0.33)
+    
+    with np.load('data/processed_data.npz', allow_pickle=True) as processed_data:
+        X_train = processed_data['X_train']
+        X_test = processed_data['X_test']
+        X_validate = processed_data['X_validate']
 
-    for i in range(len(X_train1)):
-        for j in range(len(X_train1[i])):
-        
-            X_train1[i][j][0] = (X_train1[i][j][0]-6.5) /(9-6.5)
-            X_train1[i][j][1] = (X_train1[i][j][1]-1)/(37.33-1)
-        
-        
-    for i in range(len(X_validate)):
-        for j in range(len(X_validate[i])):
-            
-            X_validate[i][j][0] = (X_validate[i][j][0]-6.5) /(9-6.5)
-            X_validate[i][j][1] = (X_validate[i][j][1]-1)/(37.33-1)
+
+
 
     # intermediate_dim = Categorical(categories=[32, 64, 128],
     #                      name='intermediate_dim')
