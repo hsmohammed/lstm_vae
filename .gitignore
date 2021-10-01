@@ -5,7 +5,7 @@
 # certain folders
 
 src/lstm_vae/save_model_skopt
-src/lstm_vae/tesorboard_log
+src/lstm_vae/tensorboard_log
 src/lstm_vae/visualization
 model_weights/
 data_saves/
