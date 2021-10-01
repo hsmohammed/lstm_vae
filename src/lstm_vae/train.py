@@ -5,12 +5,17 @@ Created on Wed Sep 22 13:11:39 2021
 
 @author: hossam
 """
-import os
 import tensorflow as tf
 from data_loader import DataGenerator
 from models import lstmKerasModel
-# from trainers import vaeTrainer
 from utils import process_config, create_dirs, get_args, save_config
+import os
+
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], enable=True)
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def main():
@@ -24,12 +29,15 @@ def main():
     #     exit(0)
     args = get_args()
     config = process_config(args.config)
+    # config = process_config("unconstrained_config.json")
     # create the experiments dirs
     create_dirs([config['result_dir'], config['checkpoint_dir'], config['checkpoint_dir_lstm']])
     # save the config in a txt file
     save_config(config)
     # create your data generator
-    tf.config.experimental_run_functions_eagerly(True)
+    # tf.config.run_functions_eagerly(False)
+    # tf.compat.v1.enable_eager_execution()
+
     data = DataGenerator(config)
 
     # create a lstm model class instance
@@ -37,8 +45,8 @@ def main():
 
 
     # Create a basic model instance
-    lstm_nn_model = lstm_model.build_lstm_model(config)
-    lstm_nn_model.summary()   # Display the model's architecture
+    lstm_network = lstm_model.lstm_network
+    lstm_network.summary()   # Display the model's architecture
     # checkpoint path
     checkpoint_path = config['checkpoint_dir_lstm']\
                       + "cp.ckpt"
@@ -47,20 +55,16 @@ def main():
                                                       save_weights_only=True,
                                                       verbose=1)
     # load weights if possible
-    lstm_model.load_model(lstm_nn_model, config, checkpoint_path)
+    # lstm_model.load_saved_model(lstm_network, config, checkpoint_path)
 
     # start training
     if config['num_epochs_lstm'] > 0:
-        lstm_model.compute_gradients()
-        lstm_model.train(config, lstm_nn_model, cp_callback)
+        lstm_model.train(config, lstm_network, cp_callback)
 
-    # make a prediction on the test set using the trained model
-    lstm_embedding = lstm_nn_model.predict(next(lstm_nn_model.test_generator))
-    print(lstm_embedding.shape)
+    # # make a prediction on the test set using the trained model
+    # lstm_test = lstm_model.test(lstm_nn_model)
+    # print(lstm_test.shape)
 
-    # visualise the first 10 test sequences
-    # for i in range(10):
-    #     lstm_model.plot_lstm_embedding_prediction(i, config, model_vae, sess, data, lstm_embedding)
 
 
 if __name__ == '__main__':

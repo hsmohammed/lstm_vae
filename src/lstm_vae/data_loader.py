@@ -8,8 +8,6 @@ Created on Thu Sep 23 15:55:33 2021
 
 from base import BaseDataGenerator
 import numpy as np
-import matplotlib.pylab as plt
-from matplotlib.pyplot import savefig
 
 
 class DataGenerator(BaseDataGenerator):
@@ -26,30 +24,24 @@ class DataGenerator(BaseDataGenerator):
             self.val_set_lstm = processed_data['X_validate']
             
     def data_generator(self,X):
-          while True:
-              X1 = X
-              for i in range(len(X1)):
-                  a = X1[0]
+        while True:
+            X1 = X
+            for i in range(len(X1)):
+                a = X1[0]
+                
+                b = (np.array([a]),np.array([a]))
+                yield b
+                X1 = X1[1:]
                   
-                  b = (np.array([a]),np.array([a]))
-                  yield b
-                  X1 = X1[1:]
+    def test_data_generator(self,X):
+        while True:
+            X1 = X
+            for i in range(len(X1)):
+                a = X1[0]
+                
+                b = (np.array([a]))
+                yield b
+                X1 = X1[1:]
+
 
         
-
-        
-  
-
-
-
-
-  # def plot_time_series(self, data, time, data_list):
-  #   fig, axs = plt.subplots(1, 4, figsize=(18, 2.5), edgecolor='k')
-  #   fig.subplots_adjust(hspace=.8, wspace=.4)
-  #   axs = axs.ravel()
-  #   for i in range(4):
-  #     axs[i].plot(time / 60., data[:, i])
-  #     axs[i].set_title(data_list[i])
-  #     axs[i].set_xlabel('time (h)')
-  #     axs[i].set_xlim((np.amin(time) / 60., np.amax(time) / 60.))
-  #   savefig(self.config['result_dir'] + '/raw_training_set_normalised.pdf')
